@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.app.iBBS">
+<insert id='writerbbs'>
+	insert into bbs(bbs_id, title, content, writer, passcode, created, updated)
+	values(seq_bbs_id.nextval,#{param1},#{param2},#{param3},#{param4},
+	to_char(sysdate,'YYYYMMDDHH24MI'),to_char(sysdate,'YYYYMMDDHH24MI'))
+</insert>
+
+<delete id='deleteBBS'>
+	delete from bbs where bbs_id=#{param1}
+</delete>
+
+<update id='updateBBS'>
+	update bbs set  title=#{param2}, content=#{param3}
+	where bbs_id=#{param1}
+</update>
+
+<select id="getList" resultType="com.human.app.BBSrec">
+	select bbs_id, title, content, writer, created, updated
+	from bbs order by created desc
+</select>
+
+<select id="getPost" resultType="com.human.app.BBSrec">
+		select bbs_id, title, content, writer, created, updated
+			from bbs where bbs_id=#{param1}
+</select>
+
+</mapper>
