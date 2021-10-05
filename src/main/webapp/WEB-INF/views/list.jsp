@@ -22,6 +22,12 @@ table#tblList th {
 </style>
 <body>
 <table align=center valign=top>
+<c:if test="${loggined eq '0' }">
+	<tr><td align=right><input type=button id=btnLogin name=btnLogin value="로그인"></td></tr>
+</c:if>
+<c:if test="${loggined eq '1' }">
+		${userid}&nbsp;<a href="/app/logout" id="doLogout">로그아웃</a>
+</c:if>
 <tr><td>
 		<table id=tblList>
 		<thead>
@@ -34,7 +40,9 @@ table#tblList th {
 </table>
 </td></tr>
 <tr><td>
-<input type=button value='새글쓰기'  id=btnNew>
+<c:if test="${loggined eq '1' }">
+	<input type=button value='새글쓰기'  id=btnNew>
+</c:if>
 </td></tr>
 </table>
 </body>
@@ -50,6 +58,14 @@ $(document)
 .on('click','#btnNew',function(){
 	document.location="/app/new/"
 	return false;
+})
+.on('click','#btnLogin',function(){
+	document.location="/app/login/"
+	return false;
+})
+.on('click','#doLogout',function(){
+	if(confirm("로그아웃 하시겠습니까?")) {return true;
+	}else return false; 
 })
 </script>
 </html>

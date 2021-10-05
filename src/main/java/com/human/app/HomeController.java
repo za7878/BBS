@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -82,10 +83,19 @@ public class HomeController {
 		return "new";
 	}
 	@RequestMapping(value="/list",method=RequestMethod.GET)
-	public String alist(Model model) {
+	public String alist(HttpServletRequest hsr, Model model) {
 		iBBS bbs=sqlSession.getMapper(iBBS.class);
 		ArrayList<BBSrec> alBBS=bbs.getList();
+		HttpSession session=hsr.getSession();
+		String userid=(String) session.getAttribute("userid");
+		if(userid==null || userid.equals("")) { //로그인 한적 없음.
+			model.addAttribute("loggined","0");
+		} else { //로그인한 사용자
+			model.addAttribute("loggined","1");
+			model.addAttribute("userid",userid);
+		}
 		model.addAttribute("list_BBS",alBBS);
+		System.out.println("userid="+userid);
 		return "list";
 	}
 
@@ -113,6 +123,46 @@ public class HomeController {
 		String content=hsr.getParameter("content");
 		iBBS bbs=sqlSession.getMapper(iBBS.class);
 		bbs.updateBBS(bbs_id,title,content);
+		return "redirect:/list";
+	}
+	@RequestMapping(value="/login",method=RequestMethod.GET)
+	public String Alogin() {
+		return "login";
+	}
+	@RequestMapping(value="/LoginCheck",method=RequestMethod.POST)
+	public String logincheck(HttpServletRequest hsr) {
+		String loginid=hsr.getParameter("login");
+		String passcode=hsr.getParameter("pw");
+		System.out.println("loginid="+loginid);
+		System.out.println("passcode="+passcode);
+		iMember mem=sqlSession.getMapper(iMember.class);
+		int n=mem.checkUser(loginid,passcode);
+		if(n==1) { // valid user -> login 성공 -> list.jsp
+			HttpSession session=hsr.getSession();
+			session.setAttribute("userid",loginid);
+			return "redirect:/list";
+		}else { //invalid user -> login 실패 -> login.jsp
+			return "redirect:/login";
+		}
+	}
+	@RequestMapping("/newbie")
+	public String newbie() {
+		return "newbie";
+	}
+	@RequestMapping(value="/signin",method=RequestMethod.POST)
+	public String Asingin(HttpServletRequest hsr) {
+		String name=hsr.getParameter("name");
+		String userid=hsr.getParameter("login");
+		String password=hsr.getParameter("pw");
+		// Mybatis 이용해서 회원추가 (member table)
+		iMember mem=sqlSession.getMapper(iMember.class);
+		mem.addMember(name,userid,password);
+		return "redirect:/login";
+	}
+	@RequestMapping("/logout")
+	public String logout(HttpServletRequest hsr) {
+		HttpSession session=hsr.getSession();
+		session.invalidate(); //clear/reset/remove all
 		return "redirect:/list";
 	}
 }

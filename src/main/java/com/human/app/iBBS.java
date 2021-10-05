@@ -12,4 +12,6 @@ public interface iBBS {
 	void deleteBBS(int bbs_id);
 
 	void updateBBS(int bbs_id, String title, String content);
+	
+	void addMemeber(String name, String userid, String password);
 }
